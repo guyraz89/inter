@@ -23,8 +23,8 @@ parser.add_argument('-p', '--password',
 parser.add_argument('-o', '--port',
                     help="port.",
                     required=True, metavar='')
-parser.add_argument('-s', '--script_path',
-                    help="from which directory to print the files.",
+parser.add_argument('-s', '--script_name',
+                    help="name of the script we want to launch on the remote machine.",
                     required=True, metavar='')
 
 options = parser.parse_args()
@@ -33,7 +33,7 @@ options = parser.parse_args()
 if __name__ == '__main__':
     root_dir = options.rootdir
     hostname = options.hostname
-    script_path = options.script_path
+    script_name = options.script_name
     port = options.port
     username = options.username
     password = options.password
@@ -45,30 +45,26 @@ if __name__ == '__main__':
         ssh.connect(hostname, username=username, password=password, port=port)
         # transfer file to wanted location on remote machine
         sftp = ssh.open_sftp()
-        sftp.put(script_path, f'{root_dir}/list_files.py')
+        sftp.put(script_name, f'{root_dir}/{script_name}')
         sftp.close()
         # Run the script
-        ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(f"python3 {root_dir}/list_files.py")
+        ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(f"python3 {root_dir}/{script_name}")
         # Read stdout
         for line in ssh_stdout.read().splitlines():
             print(line.decode())
 
     except ValueError:
-        print("[ERROR] No such file or directory such as " + root_dir)
         rc = 1
+        print("[ERROR] No such file or directory such as " + root_dir)
     except BadHostKeyException:
-        rc = 3
+        rc = 2
         print("[ERROR] Host key could not verified.")
     except AuthenticationException:
-        rc = 4
+        rc = 3
         print("[ERROR] Authentication Failed")
-        for line in ssh_stderr.read().readlines():
-            print(line)
     except SSHException:
         print("[ERROR] Failed to establish connection.")
-        rc = 2
-        for line in ssh_stderr.read().readlines():
-            print(line)
+        rc = 4
     except IOError:
         rc = 5
         print("[ERROR] Transfer script to remote machine has failed\n check your input arguments")
