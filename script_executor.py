@@ -1,7 +1,8 @@
 import os
+import sys
 import argparse
 from paramiko import SSHClient
-from paramiko.ssh_exception import SSHException, NoValidConnectionsError
+from paramiko.ssh_exception import SSHException, AuthenticationException, BadHostKeyException
 from paramiko.client import AutoAddPolicy
 
 """Parsing program arguments"""
@@ -36,6 +37,7 @@ if __name__ == '__main__':
     port = options.port
     username = options.username
     password = options.password
+    rc = 0
     try:
         # Connect remote machine via SSH
         ssh = SSHClient()
@@ -53,16 +55,24 @@ if __name__ == '__main__':
 
     except ValueError:
         print("[ERROR] No such file or directory such as " + root_dir)
-    except SSHException:
-        print("[ERROR] command execution failed.")
+        rc = 1
+    except BadHostKeyException:
+        rc = 3
+        print("[ERROR] Host key could not verified.")
+    except AuthenticationException:
+        rc = 4
+        print("[ERROR] Authentication Failed")
         for line in ssh_stderr.read().readlines():
             print(line)
-    except NoValidConnectionsError:
-        print("[ERROR] Failed to establish connection")
+    except SSHException:
+        print("[ERROR] Failed to establish connection.")
+        rc = 2
         for line in ssh_stderr.read().readlines():
             print(line)
     except IOError:
-        print("[ERROR] Upload script to remote machine has failed\n check your input arguments")
+        rc = 5
+        print("[ERROR] Transfer script to remote machine has failed\n check your input arguments")
 
     finally:
         ssh.close()
+        sys.exit(rc)

@@ -123,3 +123,4 @@ dmypy.json
 # Pyre type checker
 .pyre/
 agent_install.sh
+.DS_Store
