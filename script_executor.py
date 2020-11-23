@@ -22,6 +22,9 @@ parser.add_argument('-p', '--password',
 parser.add_argument('-o', '--port',
                     help="port.",
                     required=True, metavar='')
+parser.add_argument('-s', '--script_path',
+                    help="from which directory to print the files.",
+                    required=True, metavar='')
 
 options = parser.parse_args()
 
@@ -29,6 +32,7 @@ options = parser.parse_args()
 if __name__ == '__main__':
     root_dir = options.rootdir
     hostname = options.hostname
+    script_path = options.script_path
     port = options.port
     username = options.username
     password = options.password
@@ -39,7 +43,7 @@ if __name__ == '__main__':
         ssh.connect(hostname, username=username, password=password, port=port)
         # transfer file to wanted location on remote machine
         sftp = ssh.open_sftp()
-        sftp.put(root_dir, f'{root_dir}/list_files.py')
+        sftp.put(script_path, f'{root_dir}/list_files.py')
         sftp.close()
         # Run the script
         ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(f"python3 {root_dir}/list_files.py")
