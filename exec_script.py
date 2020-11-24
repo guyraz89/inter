@@ -63,8 +63,8 @@ if __name__ == '__main__':
         rc = 3
         print("[ERROR] Authentication Failed")
     except SSHException:
-        print("[ERROR] Failed to establish connection.")
         rc = 4
+        print("[ERROR] Failed to establish connection.")
     except IOError:
         rc = 5
         print("[ERROR] Transfer script to remote machine has failed\n check your input arguments")
