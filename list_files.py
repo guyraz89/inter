@@ -1,5 +1,9 @@
 import os
+import time
 
+def sayHello():
+    print("Hello")
+    
 def map_files(root_dir=os.getcwd()):
     """Print all files and directories from given root directory.
     
